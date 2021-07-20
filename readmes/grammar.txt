@@ -1,0 +1,53 @@
+program : statement[]
+
+# this is a comment
+
+statement:
+    "if" expression statement-list ("else" statement-list)?
+    "for" expression statement-list
+    "break" ";"
+    "continue" ";"
+    "return" expression ";"
+    "let" identifier ("=" expression)? ";"
+    expression ";"
+
+expression:
+    binary-operation
+    unary-operation
+    postfix-operation
+    "(" expression ")"
+    variable
+    literal
+
+    "fn" ..., identifier statement-list  # --> this is lambda, the way to create functions
+    [..., expression]                    # --> this is array
+
+punctuation: 
+    ";" "{" "}" "(" ")" "," "[" "]"
+
+binary-operators:       precedence
+    "="                 1
+    "|"                 2
+    "&"                 3
+    "==" "!="           4
+    "<" ">" "<=" ">="   5
+    "-" "+" "*"         6
+    "/"  "%"            7
+
+    "-" "!"             8 unary operators
+    "(" ")" "[" "]"     9 postfix operators
+    
+
+unary-operators:
+    "-" "!"
+
+postfix-operators:
+    (-array-)[expression]
+    (-function-)(..., expression) 
+
+keywords:
+    "if" "for" "break" "else" "continue" 
+    "return" "let" "fn"
+
+types:
+    int, float, bool, str, array, function
