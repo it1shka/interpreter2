@@ -47,7 +47,7 @@ postfix-operators:
 
 keywords:
     "if" "for" "break" "else" "continue" 
-    "return" "let" "fn"
+    "return" "let" "fn" "true" "false" "null"
 
 types:
-    int, float, bool, str, array, function
+    int, float, null, bool, str, array, function

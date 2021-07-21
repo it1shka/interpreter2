@@ -7,8 +7,7 @@ import (
 
 func main() {
 	code := `
-	let a = null;
-	let b = null;
+		a = b = c = 5;
 	`
 	parser := NewParser(code)
 	ast := parser.ParseProgram()
