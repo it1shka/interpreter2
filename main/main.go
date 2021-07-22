@@ -1,15 +1,21 @@
 package main
 
 import (
-	"fmt"
+	. "interpreter2/evaluator"
 	. "interpreter2/parser"
 )
 
 func main() {
 	code := `
-		a = b = c = 5;
+	let greet = fn {
+		echo("Hello world!");	
+	};
+	let result = greet();
+	echo(result);
 	`
 	parser := NewParser(code)
 	ast := parser.ParseProgram()
-	fmt.Println(FormatStruct(ast))
+	// fmt.Println(FormatStruct(ast))
+	eval := NewEvaluator()
+	eval.Eval(ast)
 }

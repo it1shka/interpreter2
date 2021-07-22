@@ -6,9 +6,22 @@ import (
 	"strings"
 )
 
+type ObjectType int
+
+const (
+	INT_TYPE ObjectType = iota
+	FLOAT_TYPE
+	BOOL_TYPE
+	NULL_TYPE
+	STRING_TYPE
+	ARRAY_TYPE
+	FUNCTION_TYPE
+	BUILTIN_TYPE
+)
+
 type OBJECT interface {
 	_obj()
-	getType() string
+	getType() ObjectType
 	ToString() string
 }
 
@@ -44,14 +57,14 @@ func (s Array) _obj()           {}
 func (s *Function) _obj()       {}
 func (s BuiltinFunction) _obj() {}
 
-func (s Int) getType() string             { return "Int" }
-func (s Float) getType() string           { return "Float" }
-func (s *Bool) getType() string           { return "Bool" }
-func (s *Null) getType() string           { return "Null" }
-func (s String) getType() string          { return "String" }
-func (s Array) getType() string           { return "Array" }
-func (s *Function) getType() string       { return "Function" }
-func (s BuiltinFunction) getType() string { return "BuiltIn" }
+func (s Int) getType() ObjectType             { return INT_TYPE }
+func (s Float) getType() ObjectType           { return FLOAT_TYPE }
+func (s *Bool) getType() ObjectType           { return BOOL_TYPE }
+func (s *Null) getType() ObjectType           { return NULL_TYPE }
+func (s String) getType() ObjectType          { return STRING_TYPE }
+func (s Array) getType() ObjectType           { return ARRAY_TYPE }
+func (s *Function) getType() ObjectType       { return FUNCTION_TYPE }
+func (s BuiltinFunction) getType() ObjectType { return BUILTIN_TYPE }
 
 func (s Int) ToString() string    { return fmt.Sprintf("%d", s) }
 func (s Float) ToString() string  { return fmt.Sprintf("%f", s) }
