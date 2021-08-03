@@ -79,10 +79,10 @@ func (ev *Evaluator) evalStmtList(stmts STMT_LIST) Callback {
 				ev.pushScope()
 				cb := ev.evalStmtList(t.Body)
 				ev.popScope()
-				switch cb.(type) {
-				case Break:
+				if _, ok := cb.(Break); ok {
 					break
-				case Return:
+				}
+				if cb, ok := cb.(Return); ok {
 					return cb
 				}
 			}
@@ -119,11 +119,7 @@ func (ev *Evaluator) evalExpr(expression EXPRESSION) OBJECT {
 		return Float(expr.Value)
 
 	case *BOOL_LITERAL_EXPR:
-		if expr.Value {
-			return True_
-		} else {
-			return False_
-		}
+		return resolveBool(expr.Value)
 
 	case *STR_LITERAL_EXPR:
 		return String(expr.Value)
