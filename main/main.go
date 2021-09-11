@@ -7,9 +7,21 @@ import (
 
 func main() {
 	code := `
-	let arr = [1, 2, 3];
-	pop(arr);
-	echo(arr);
+	let n = 1000;
+	let sieve = ([false] * 2) + ([true] * (n - 2));
+	
+	let i = 2;
+	for i < n {
+		if sieve[i] {
+			echo(i);
+			let j = i * 2;
+			for j < n {
+				sieve[j] = false;
+				j = j + i;
+			}
+		}
+		i = i + 1;
+	}
 	`
 	parser := NewParser(code)
 	ast := parser.ParseProgram()

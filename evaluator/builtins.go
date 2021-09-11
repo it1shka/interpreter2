@@ -14,7 +14,8 @@ func echo(args []OBJECT) OBJECT {
 func size(args []OBJECT) OBJECT {
 	arg := args[0]
 	if arg.getType() == ARRAY_TYPE {
-		return Int(len(arg.(Array)))
+		arr := arg.(*Array)
+		return Int(len(*arr))
 	}
 	if arg.getType() == STRING_TYPE {
 		return Int(len(arg.(String)))
@@ -26,19 +27,20 @@ func push(args []OBJECT) OBJECT {
 	if args[0].getType() != ARRAY_TYPE {
 		return Null_
 	}
-	arr, elem := args[0].(Array), args[1]
-	return append(arr, elem)
+	arr, elem := args[0].(*Array), args[1]
+	*arr = append(*arr, elem)
+	return elem
 }
 
 func pop(args []OBJECT) OBJECT {
 	if args[0].getType() != ARRAY_TYPE {
 		return Null_
 	}
-	arr := args[0].(Array)
-	if len(arr) <= 0 {
+	arr := args[0].(*Array)
+	if len(*arr) <= 0 {
 		return Null_
 	}
-	elem := arr[len(arr)-1]
-	arr = arr[:len(arr)-1]
+	elem := (*arr)[len(*arr)-1]
+	*arr = (*arr)[:len(*arr)-1]
 	return elem
 }

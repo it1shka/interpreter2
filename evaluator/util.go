@@ -29,8 +29,8 @@ func checkCondition(object OBJECT) bool {
 		return false
 	case String:
 		return len(obj) > 0
-	case Array:
-		return len(obj) > 0
+	case *Array:
+		return len(*obj) > 0
 	default:
 		return true
 	}
@@ -107,11 +107,13 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 			return False_
 		}
 		if left.getType() == ARRAY_TYPE {
-			if len(left.(Array)) != len(right.(Array)) {
+			left_ := left.(*Array)
+			right_ := right.(*Array)
+			if len(*left_) != len(*right_) {
 				return False_
 			}
-			for i := 0; i < len(left.(Array)); i++ {
-				res := resolveBinaryOp(left.(Array)[i], right.(Array)[i], "==")
+			for i := 0; i < len(*left_); i++ {
+				res := resolveBinaryOp((*left_)[i], (*right_)[i], "==")
 				if res == False_ {
 					return False_
 				}
@@ -130,8 +132,10 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 			return resolveBool(left.(String) < right.(String))
 		}
 		if left.getType() == ARRAY_TYPE && right.getType() == ARRAY_TYPE {
-			if len(left.(Array)) != len(right.(Array)) {
-				return resolveBool(len(left.(Array)) < len(right.(Array)))
+			left_ := left.(*Array)
+			right_ := right.(*Array)
+			if len(*left_) != len(*right_) {
+				return resolveBool(len(*left_) < len(*right_))
 			}
 			return False_
 		}
@@ -144,8 +148,10 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 			return resolveBool(left.(String) > right.(String))
 		}
 		if left.getType() == ARRAY_TYPE && right.getType() == ARRAY_TYPE {
-			if len(left.(Array)) != len(right.(Array)) {
-				return resolveBool(len(left.(Array)) > len(right.(Array)))
+			left_ := left.(*Array)
+			right_ := right.(*Array)
+			if len(*left_) != len(*right_) {
+				return resolveBool(len(*left_) > len(*right_))
 			}
 			return False_
 		}
@@ -167,18 +173,26 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 		}
 
 		if left.getType() == ARRAY_TYPE {
+			left_ := left.(*Array)
 			if right.getType() == ARRAY_TYPE {
-				return append(left.(Array), right.(Array)...)
+				right_ := right.(*Array)
+				narr := append(*left_, *right_...)
+				return &narr
 			} else {
-				return append(left.(Array), right)
+				narr := append(*left_, right)
+				return &narr
 			}
 		}
 
 		if right.getType() == ARRAY_TYPE {
+			right_ := right.(*Array)
 			if left.getType() == ARRAY_TYPE {
-				return append(left.(Array), right.(Array)...)
+				left_ := left.(*Array)
+				narr := append(*right_, *left_...)
+				return &narr
 			} else {
-				return append(Array{left}, right.(Array)...)
+				narr := append(*right_, left)
+				return &narr
 			}
 		}
 
@@ -188,9 +202,11 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 			return obj
 		}
 		if left.getType() == ARRAY_TYPE {
-			for ind, each := range left.(Array) {
+			left_ := left.(*Array)
+			for ind, each := range *left_ {
 				if resolveBinaryOp(each, right, "==") == True_ {
-					return append(left.(Array)[:ind], left.(Array)[ind+1:]...)
+					narr := append((*left_)[:ind], (*left_)[ind+1:]...)
+					return &narr
 				}
 			}
 			return left
@@ -215,24 +231,26 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 		}
 
 		if left.getType() == ARRAY_TYPE && right.getType() == INT_TYPE {
+			left_ := left.(*Array)
 			if right.(Int) < 0 {
 				return Null_
 			}
 			res := make(Array, 0)
 			for i := 0; i < int(right.(Int)); i++ {
-				res = append(res, left.(Array)...)
+				res = append(res, *left_...)
 			}
-			return res
+			return &res
 		}
 		if right.getType() == ARRAY_TYPE && left.getType() == INT_TYPE {
+			right_ := right.(*Array)
 			if left.(Int) < 0 {
 				return Null_
 			}
 			res := make(Array, 0)
 			for i := 0; i < int(left.(Int)); i++ {
-				res = append(res, right.(Array)...)
+				res = append(res, *right_...)
 			}
-			return res
+			return &res
 		}
 
 		return Null_

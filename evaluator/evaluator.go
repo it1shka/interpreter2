@@ -132,7 +132,7 @@ func (ev *Evaluator) evalExpr(expression EXPRESSION) OBJECT {
 		for ind, val := range expr.Array {
 			arr[ind] = ev.evalExpr(val)
 		}
-		return arr
+		return &arr
 
 	case *FUNCTION_LITERAL_EXPR:
 		return &Function{expr.Arguments, expr.Body, ev.scope}
@@ -148,11 +148,27 @@ func (ev *Evaluator) evalExpr(expression EXPRESSION) OBJECT {
 	case *BINARY_EXPR:
 		right := ev.evalExpr(expr.Right)
 		if expr.Operator == "=" {
-			left, ok := expr.Left.(*VARIABLE_EXPR)
-			if !ok {
+			//left, ok := expr.Left.(*VARIABLE_EXPR)
+			//if !ok {
+			//	panic("Expected identifier in assignment")
+			//}
+			//ev.scope.SetOrInit(left.Identifier, right)
+			//return right
+			switch tt := expr.Left.(type) {
+			case *VARIABLE_EXPR:
+				ev.scope.SetOrInit(tt.Identifier, right)
+			case *GET_OPERATOR_EXPR:
+				fromObj := ev.evalExpr(tt.From)
+				ind := ev.evalExpr(tt.Index)
+				arr, ok := fromObj.(*Array)
+				if !ok || ind.getType() != INT_TYPE {
+					panic(fmt.Sprintf("Expected array and index, found %s and %s",
+						fromObj.ToString(), ind.ToString()))
+				}
+				(*arr)[ind.(Int)] = right
+			default:
 				panic("Expected identifier in assignment")
 			}
-			ev.scope.SetOrInit(left.Identifier, right)
 			return right
 		} else {
 			left := ev.evalExpr(expr.Left)
@@ -184,7 +200,8 @@ func (ev *Evaluator) evalExpr(expression EXPRESSION) OBJECT {
 		fromObj := ev.evalExpr(expr.From)
 		indexObj := ev.evalExpr(expr.Index)
 		if fromObj.getType() == ARRAY_TYPE && indexObj.getType() == INT_TYPE {
-			return fromObj.(Array)[indexObj.(Int)]
+			object := fromObj.(*Array)
+			return (*object)[indexObj.(Int)]
 		} else {
 			panic(fmt.Sprintf("Expected array and index, found %s and %s",
 				fromObj.ToString(), indexObj.ToString()))
