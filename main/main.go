@@ -7,9 +7,9 @@ import (
 
 func main() {
 	code := `
-	let a = "Hello";
-	let b = "Hel";
-	echo(a-b);
+	let arr = [1, 2, 3];
+	pop(arr);
+	echo(arr);
 	`
 	parser := NewParser(code)
 	ast := parser.ParseProgram()

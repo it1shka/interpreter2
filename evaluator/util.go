@@ -82,11 +82,15 @@ func TryNumberCompare(a, b OBJECT, fn NumberCompFunc) (OBJECT, bool) {
 // number functions...
 
 func eqf(a, b float64) bool { return a == b }
+func lsf(a, b float64) bool { return a < b }
+func gtf(a, b float64) bool { return a > b }
 
 // func nef(a, b float64) bool { return a != b }
 func addf(a, b float64) float64 { return a + b }
 func subf(a, b float64) float64 { return a - b }
 func mulf(a, b float64) float64 { return a * b }
+func divf(a, b float64) float64 { return a / b }
+func modf(a, b float64) float64 { return float64(int(a) % int(b)) }
 
 func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 
@@ -118,13 +122,48 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 	case "!=":
 		res := resolveBinaryOp(left, right, "==")
 		return resolveUnaryOp(res, "!")
+	case "<":
+		if obj, ok := TryNumberCompare(left, right, lsf); ok {
+			return obj
+		}
+		if left.getType() == STRING_TYPE && left.getType() == STRING_TYPE {
+			return resolveBool(left.(String) < right.(String))
+		}
+		if left.getType() == ARRAY_TYPE && right.getType() == ARRAY_TYPE {
+			if len(left.(Array)) != len(right.(Array)) {
+				return resolveBool(len(left.(Array)) < len(right.(Array)))
+			}
+			return False_
+		}
+		return False_
+	case ">":
+		if obj, ok := TryNumberCompare(left, right, gtf); ok {
+			return obj
+		}
+		if left.getType() == STRING_TYPE && left.getType() == STRING_TYPE {
+			return resolveBool(left.(String) > right.(String))
+		}
+		if left.getType() == ARRAY_TYPE && right.getType() == ARRAY_TYPE {
+			if len(left.(Array)) != len(right.(Array)) {
+				return resolveBool(len(left.(Array)) > len(right.(Array)))
+			}
+			return False_
+		}
+		return False_
+	case "<=":
+		res := resolveBinaryOp(left, right, ">")
+		return resolveUnaryOp(res, "!")
+	case ">=":
+		res := resolveBinaryOp(left, right, "<")
+		return resolveUnaryOp(res, "!")
+
 	case "+":
 		if obj, ok := TryNumberOperation(left, right, addf); ok {
 			return obj
 		}
 
-		if left.getType() == STRING_TYPE && right.getType() == STRING_TYPE {
-			return left.(String) + right.(String)
+		if left.getType() == STRING_TYPE || right.getType() == STRING_TYPE {
+			return String(left.ToString() + right.ToString())
 		}
 
 		if left.getType() == ARRAY_TYPE {
@@ -167,20 +206,60 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 			return obj
 		}
 		if left.getType() == STRING_TYPE && right.getType() == INT_TYPE {
-			res := strings.Repeat()
+			res := strings.Repeat(string(left.(String)), int(right.(Int)))
+			return String(res)
 		}
+		if right.getType() == STRING_TYPE && left.getType() == INT_TYPE {
+			res := strings.Repeat(string(right.(String)), int(left.(Int)))
+			return String(res)
+		}
+
+		if left.getType() == ARRAY_TYPE && right.getType() == INT_TYPE {
+			if right.(Int) < 0 {
+				return Null_
+			}
+			res := make(Array, 0)
+			for i := 0; i < int(right.(Int)); i++ {
+				res = append(res, left.(Array)...)
+			}
+			return res
+		}
+		if right.getType() == ARRAY_TYPE && left.getType() == INT_TYPE {
+			if left.(Int) < 0 {
+				return Null_
+			}
+			res := make(Array, 0)
+			for i := 0; i < int(left.(Int)); i++ {
+				res = append(res, right.(Array)...)
+			}
+			return res
+		}
+
+		return Null_
+	case "/":
+		if obj, ok := TryNumberOperation(left, right, divf); ok {
+			return obj
+		}
+		return Null_
+	case "%":
+		if obj, ok := TryNumberOperation(left, right, modf); ok {
+			return obj
+		}
+		return Null_
 	}
 
-	panic("Unfinished operator")
+	panic("Undefined behaviour")
 }
 
 func resolveUnaryOp(obj OBJECT, operator string) OBJECT {
 	switch operator {
 	case "!":
 		return resolveBool(!checkCondition(obj))
-	default:
-		panic("Unfinished operator")
+	case "-":
+		return resolveBinaryOp(obj, Int(-1), "*")
 	}
+
+	panic("Undefined behaviour")
 }
 
 /*
