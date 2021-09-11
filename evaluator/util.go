@@ -1,6 +1,7 @@
 package evaluator
 
 // import "encoding/json"
+import "strings"
 
 func min(a, b int) int {
 	if a < b {
@@ -79,7 +80,13 @@ func TryNumberCompare(a, b OBJECT, fn NumberCompFunc) (OBJECT, bool) {
 }
 
 // number functions...
+
+func eqf(a, b float64) bool { return a == b }
+
+// func nef(a, b float64) bool { return a != b }
 func addf(a, b float64) float64 { return a + b }
+func subf(a, b float64) float64 { return a - b }
+func mulf(a, b float64) float64 { return a * b }
 
 func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 
@@ -89,9 +96,28 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 	case "&":
 		return resolveBool(checkCondition(left) && checkCondition(right))
 	case "==":
+		if obj, ok := TryNumberCompare(left, right, eqf); ok {
+			return obj
+		}
+		if left.getType() != right.getType() {
+			return False_
+		}
+		if left.getType() == ARRAY_TYPE {
+			if len(left.(Array)) != len(right.(Array)) {
+				return False_
+			}
+			for i := 0; i < len(left.(Array)); i++ {
+				res := resolveBinaryOp(left.(Array)[i], right.(Array)[i], "==")
+				if res == False_ {
+					return False_
+				}
+			}
+			return True_
+		}
 		return resolveBool(left == right)
 	case "!=":
-		return resolveBool(left != right)
+		res := resolveBinaryOp(left, right, "==")
+		return resolveUnaryOp(res, "!")
 	case "+":
 		if obj, ok := TryNumberOperation(left, right, addf); ok {
 			return obj
@@ -117,12 +143,44 @@ func resolveBinaryOp(left, right OBJECT, operator string) OBJECT {
 			}
 		}
 
+		return Null_
+	case "-":
+		if obj, ok := TryNumberOperation(left, right, subf); ok {
+			return obj
+		}
+		if left.getType() == ARRAY_TYPE {
+			for ind, each := range left.(Array) {
+				if resolveBinaryOp(each, right, "==") == True_ {
+					return append(left.(Array)[:ind], left.(Array)[ind+1:]...)
+				}
+			}
+			return left
+		}
+		if left.getType() == STRING_TYPE && right.getType() == STRING_TYPE {
+			res := strings.Replace(string(left.(String)), string(right.(String)), "", 1)
+			return String(res)
+		}
+
+		return Null_
+	case "*":
+		if obj, ok := TryNumberOperation(left, right, mulf); ok {
+			return obj
+		}
+		if left.getType() == STRING_TYPE && right.getType() == INT_TYPE {
+			res := strings.Repeat()
+		}
 	}
+
 	panic("Unfinished operator")
 }
 
 func resolveUnaryOp(obj OBJECT, operator string) OBJECT {
-	panic("Unfinished operator")
+	switch operator {
+	case "!":
+		return resolveBool(!checkCondition(obj))
+	default:
+		panic("Unfinished operator")
+	}
 }
 
 /*
