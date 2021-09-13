@@ -22,6 +22,19 @@ func (ev *Evaluator) _init() {
 		{BuiltinFunction(size), "size"},
 		{BuiltinFunction(push), "push"},
 		{BuiltinFunction(pop), "pop"},
+		{BuiltinFunction(shift), "shift"},
+		{BuiltinFunction(input), "input"},
+		{BuiltinFunction(integer), "int"},
+		{BuiltinFunction(float), "float"},
+		{BuiltinFunction(typeof), "type"},
+		{Int(INT_TYPE), "INT"},
+		{Int(FLOAT_TYPE), "FLOAT"},
+		{Int(BOOL_TYPE), "BOOL"},
+		{Int(NULL_TYPE), "NULL"},
+		{Int(STRING_TYPE), "STRING"},
+		{Int(ARRAY_TYPE), "ARRAY"},
+		{Int(FUNCTION_TYPE), "FUNCTION"},
+		{Int(BUILTIN_TYPE), "BUILTINF"},
 	})
 }
 
