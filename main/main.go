@@ -15,7 +15,7 @@ func RunCode(code string) {
 
 func RunFromFile() {
 	args := os.Args
-	path := args[0]
+	path := args[1]
 	code := LoadFile(path)
 	RunCode(code)
 }

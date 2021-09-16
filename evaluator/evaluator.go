@@ -20,6 +20,7 @@ func (ev *Evaluator) _init() {
 	ev.setBuiltins([]BuiltinRule{
 		{BuiltinFunction(echo), "echo"},
 		{BuiltinFunction(size), "size"},
+		{BuiltinFunction(has), "has"},
 		{BuiltinFunction(push), "push"},
 		{BuiltinFunction(pop), "pop"},
 		{BuiltinFunction(shift), "shift"},

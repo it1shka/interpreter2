@@ -62,8 +62,19 @@ func shift(args []OBJECT) OBJECT {
 	return first
 }
 
+func has(args []OBJECT) OBJECT {
+	arr := args[0].(*Array)
+	val := args[1]
+	for _, each := range *arr {
+		if resolveBinaryOp(each, val, "==") == True_ {
+			return True_
+		}
+	}
+	return False_
+}
+
 func input(args []OBJECT) OBJECT {
-	if len(args) > 0 {
+	if len(args) > 0 || args[0] == Null_ {
 		fmt.Println(args[0].ToString())
 	}
 	reader := bufio.NewReader(os.Stdin)

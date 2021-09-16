@@ -1,0 +1,38 @@
+let vertices = 6;
+
+let graph = [
+    [1],
+    [2, 3],
+    [4],
+    [],
+    [5],
+    [],
+    []
+];
+
+let start = 2;
+let end = 0;
+
+# DFS Algo
+
+let queue = [start];
+let visited = [start];
+
+for size(queue) > 0 {
+    let current = pop(queue);
+    echo("Now im checking: " + current);
+    if current == end {
+        echo("There is a way!");
+        break;
+    }
+    let i = 0;
+    for i < size(graph[current]) {
+        let next = graph[current][i];
+        if has(visited, next) {
+            continue;
+        }
+        push(visited, next);
+        push(queue, next);
+        i = i + 1;
+    }
+}
