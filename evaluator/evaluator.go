@@ -115,8 +115,12 @@ func (ev *Evaluator) evalStmtList(stmts STMT_LIST) Callback {
 			return Return{obj}
 
 		case *LET_STMT:
-			obj := ev.evalExpr(t.Expression)
-			ev.scope.Init(t.Identifier, obj)
+			if t.Expression != nil {
+				obj := ev.evalExpr(t.Expression)
+				ev.scope.Init(t.Identifier, obj)
+			} else {
+				ev.scope.Init(t.Identifier, Null_)
+			}
 
 		case *EXPR_STMT:
 			ev.evalExpr(t.Expression)
